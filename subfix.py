@@ -6,7 +6,7 @@ def print_help():
     """ 
     How to use this program:
 
-    legendary.py -f [subtitle-file.srt] (-s|-m|-h) (-s = seconds, -m = minutes, -h = hours) [time-adjust] (-a | -r) (-a = add, -r = remove)
+    subfix.py -f [subtitle-file.srt] (-s|-m|-h) (-s = seconds, -m = minutes, -h = hours) [time-adjust] (-a | -r) (-a = add, -r = remove)
     """
     )
 
@@ -30,16 +30,17 @@ def get_final_time(unit_time, read_data):
     elif 'hours' in unit_time:
         return int(read_data[17:19])
 
-def set_initial_time(unit_time, initial, read_data):
-
+def set_initial_time(unit_time, initial, read_data, is_add_action):
     list_read_data = list(read_data)
     if 'seconds' in unit_time:                        
         adjust_minute = 0
         if initial > 59:
-            new_initial_seconds = initial - 60
-            adjust_minute = get_initial_time('minutes', read_data) + 1
+            new_initial_seconds = initial % 60
+            if is_add_action == 1:
+                adjust_minute = get_initial_time('minutes', read_data) + (initial / 60)
+            else:
+                adjust_minute = get_initial_time('minutes', read_data) - (initial / 60)
 
-        if adjust_minute > 0:
             list_read_data[3:5] = str(adjust_minute).zfill(2)    
             list_read_data[6:8] = str(new_initial_seconds).zfill(2)
         else:
@@ -53,15 +54,16 @@ def set_initial_time(unit_time, initial, read_data):
     
     return ''.join(list_read_data)
 
-def set_final_time(unit_time, final, read_data):
+def set_final_time(unit_time, final, read_data, is_add_action):
     list_read_data = list(read_data)
     if 'seconds' in unit_time:      
-        adjust_minute = 0
         if final > 59:
-            new_final_seconds = final - 60
-            adjust_minute = get_final_time('minutes', read_data) + 1
+            new_final_seconds = final % 60
+            if is_add_action == 1:
+                adjust_minute = get_final_time('minutes', read_data) + (final / 60)
+            else:
+                adjust_minute = get_final_time('minutes', read_data) - (final / 60)
 
-        if adjust_minute > 0:
             list_read_data[20:22] = str(adjust_minute).zfill(2)    
             list_read_data[23:25] = str(new_final_seconds).zfill(2)
         else:
@@ -85,8 +87,8 @@ def adjust_subs(absolute_file_path, unit_time, amount_adjust_time, is_add_action
                 if '-->' in read_data:
                     initial = get_initial_time(unit_time, read_data) + int(amount_adjust_time)
                     final   = get_final_time(unit_time, read_data) + int(amount_adjust_time)
-                    list_read_data = set_initial_time(unit_time, initial, read_data)
-                    list_read_data = set_final_time(unit_time, final, list_read_data)
+                    list_read_data = set_initial_time(unit_time, initial, read_data, is_add_action)
+                    list_read_data = set_final_time(unit_time, final, list_read_data, is_add_action)
                     w.write(''.join(list_read_data))
                 else:
                     w.write(read_data)
