@@ -1,7 +1,9 @@
 #!/usr/bin/python3
-import sys
 
-def print_help():
+import sys
+import argparse
+
+def usage():
     print(
     """ 
     How to use this program:
@@ -97,10 +99,14 @@ def adjust_subs(absolute_file_path, unit_time, amount_adjust_time, is_add_action
         
         w.close()
     print('Novo arquivo ' + absolute_file_path + '.adj criado com os ajustes de legenda')
- 
+
+def prepare_commands():
+    print("In development...")
+
 def main(argv):
+    prepare_commands()
     if argv[1] == '-h' or argv[1] == '--help':
-        print_help()
+        usage()
 
     elif argv[1] == '-f':
         absolute_file_path = ''
@@ -142,11 +148,10 @@ def main(argv):
             adjust_subs(absolute_file_path, unit_time, amount_adjust_time, is_add_action)
             return None
         
-        print_help()
+        usage()
         
     else:
-        print("Unknown option!!! Try this:")
-        print_help()
+        print("Bad usage, try --help option!!!")
 
 
 if __name__ == "__main__":
